@@ -1,0 +1,7 @@
+services:
+  app:
+    build: .
+    command: python3 python_files/testModel.py
+    volumes:
+    - ./data:/model/data:ro
+      
