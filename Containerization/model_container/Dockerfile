@@ -10,8 +10,7 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-# Setting the working directory and copying all the required files such as the train and test data and the .py scripts
+# Setting the working directory and copying all the required files such as the pretrained model and .py scripts
 WORKDIR /model
-COPY ./data ./data
 COPY ./python_files ./python_files
 COPY ./trained_model ./trained_model
