@@ -1,7 +1,19 @@
+version: '3.8'
+
 services:
-  app:
+  model_env:
     build: .
-    command: python3 python_files/testModel.py
     volumes:
-    - ./data:/model/data:ro
-      
+    - type: bind
+      source: ./data
+      target: /model/data
+      read_only: true
+    - type: bind
+      source: ./trained_model
+      target: /model/trained_model
+      read_only: true
+    - type: bind
+      source: ./python_files
+      target: /model/python_files
+    working_dir: /model
+    command: tail -f /dev/null
