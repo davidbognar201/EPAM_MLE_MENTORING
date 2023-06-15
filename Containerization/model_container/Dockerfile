@@ -7,15 +7,18 @@ RUN apt-get update && \
             apt-get install -y python3 python3-pip && \
             apt-get install -y vim git
 
+# Copy the requirements.txt to the container and installing all the dependencies in it
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+
+# Setting environment variables
 ENV USER_ID=${USER_ID:-1000}
 ENV GROUP_ID=${USER_ID:-1000}
 
-# Settting up the user's group and user id
+# Setting up the user's group and user id
 RUN addgroup --gid $GROUP_ID user
 RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
 USER user
 
-# Copy the requirements.txt to the container and installing all the dependencies in it
 WORKDIR /model
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+RUN mkdir model_iterations 
