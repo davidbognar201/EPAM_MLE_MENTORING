@@ -31,4 +31,7 @@ model_gridsearch.fit(train_x, train_y)
 print("Training done")
 
 # Saving the trained model
-pickle.dump(model_gridsearch.best_estimator_, open("/model/trained_model/GradBoosting_Regressor_trained.sav", 'wb'))
+pickle.dump(model_gridsearch.best_estimator_, open("/model/model_iterations/GradBoosting_Regressor_trained.sav", 'wb'))
+
+
+    
