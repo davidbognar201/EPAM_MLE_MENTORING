@@ -12,8 +12,8 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 # Setting environment variables
-ENV USER_ID=${USER_ID:-1000}
-ENV GROUP_ID=${USER_ID:-1000}
+ARG USER_ID
+ARG GROUP_ID
 
 # Setting up the user's group and user id
 RUN addgroup --gid $GROUP_ID user
@@ -21,4 +21,5 @@ RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
 USER user
 
 WORKDIR /model
+COPY --chown=user:user ./python_files /model/python_files
 RUN mkdir model_iterations 
