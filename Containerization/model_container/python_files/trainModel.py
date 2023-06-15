@@ -7,7 +7,7 @@ import pickle
 
 
 
-train_data = pd.read_csv(filepath_or_buffer = r"data\bike_rental_train_data.csv")
+train_data = pd.read_csv(filepath_or_buffer = r"/model/data/bike_rental_train_data.csv")
 train_data.rename(mapper={"cnt" : "target"}, inplace=True, axis=1)
 
 train_x, train_y = pf.PreprocessTrainData(train_data)
@@ -31,7 +31,4 @@ model_gridsearch.fit(train_x, train_y)
 print("Training done")
 
 # Saving the trained model
-pickle.dump(model_gridsearch.best_estimator_, open("trained_model\GradBoosting_Regressor_trained.sav", 'wb'))
-
-
-    
+pickle.dump(model_gridsearch.best_estimator_, open("/model/trained_model/GradBoosting_Regressor_trained.sav", 'wb'))
