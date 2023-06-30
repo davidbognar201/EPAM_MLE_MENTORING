@@ -1,0 +1,17 @@
+stages:
+  preprocess:
+    cmd: python scripts/preprocessPipeline.py
+    deps:
+    - scripts/preprocessFunctionCollection.py  
+    - scripts/preprocessPipeline.py
+    - data/MovieDataset.csv
+    outs:
+    - outs/processedData.csv
+  traintestModel:
+    cmd: python scripts/trainTestModelPipeline.py
+    deps:
+    - scripts/preprocessPipeline.py
+    - outs/processedData.csv
+    metrics:
+    - metrics.json:
+        cache: false
