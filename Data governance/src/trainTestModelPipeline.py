@@ -37,7 +37,7 @@ SGD_predicted_y
 
 print(classification_report(y_test,SGD_predicted_y))
 
-with open("metrics.json", 'w') as outfile:
+with open("outs/metrics.json", 'w') as outfile:
         json.dump({ "accuracy": accuracy_score(y_test,SGD_predicted_y),
                     "recall": recall_score(y_test,SGD_predicted_y), 
                     "precision":precision_score(y_test,SGD_predicted_y), 
