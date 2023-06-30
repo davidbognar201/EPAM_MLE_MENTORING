@@ -1,6 +1,6 @@
 stages:
   preprocess:
-    cmd: python src/preprocessPipeline.py
+    cmd: python3 src/preprocessPipeline.py
     deps:
     - src/preprocessFunctionCollection.py  
     - src/preprocessPipeline.py
@@ -8,7 +8,7 @@ stages:
     outs:
     - data/processedData.csv
   traintestModel:
-    cmd: python src/trainTestModelPipeline.py
+    cmd: python3 src/trainTestModelPipeline.py
     deps:
     - src/preprocessPipeline.py
     - data/processedData.csv
