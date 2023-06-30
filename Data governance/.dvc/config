@@ -1,0 +1,4 @@
+[core]
+    remote = awsbucket
+['remote "awsbucket"']
+    url = s3://epam-mle-mentoring-bucket
