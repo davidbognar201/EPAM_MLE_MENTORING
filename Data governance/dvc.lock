@@ -1,0 +1,22 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python3 src/preprocessPipeline.py
+    deps:
+    - path: data/MovieDataset.csv
+      hash: md5
+      md5: 308443a50e5c993e7b8a1cdb95750026
+      size: 66212309
+    - path: src/preprocessFunctionCollection.py
+      hash: md5
+      md5: 7f92c4ab2e1ff32dd07bcdfbf21c3d70
+      size: 1296
+    - path: src/preprocessPipeline.py
+      hash: md5
+      md5: 551f73134685a5887f76f915fba60e95
+      size: 2035
+    outs:
+    - path: data/processedData.csv
+      hash: md5
+      md5: 5a323d3d89105f546d00500e66b08244
+      size: 36132261
