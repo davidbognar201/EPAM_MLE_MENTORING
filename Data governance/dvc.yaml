@@ -1,16 +1,16 @@
 stages:
   preprocess:
-    cmd: python scripts/preprocessPipeline.py
+    cmd: python src/preprocessPipeline.py
     deps:
-    - scripts/preprocessFunctionCollection.py  
-    - scripts/preprocessPipeline.py
+    - src/preprocessFunctionCollection.py  
+    - src/preprocessPipeline.py
     - data/MovieDataset.csv
     outs:
     - data/processedData.csv
   traintestModel:
-    cmd: python scripts/trainTestModelPipeline.py
+    cmd: python src/trainTestModelPipeline.py
     deps:
-    - scripts/preprocessPipeline.py
+    - src/preprocessPipeline.py
     - data/processedData.csv
     metrics:
     - metrics.json:
