@@ -1,6 +1,5 @@
 **/MovieDataset.csv
 */processedData.csv
-*/.dvc/config.local
 */.dvc/tmp
 */.dvc/cache
 **/dvc.lock
