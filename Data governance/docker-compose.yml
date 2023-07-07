@@ -20,6 +20,7 @@ services:
       && git init
       && dvc pull
       && dvc repro
+      && dvc metrics show
       && tail -f /dev/null"
     
     
