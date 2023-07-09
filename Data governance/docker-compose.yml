@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  model_env:
+  container:
     user: "${USER_ID}:${GROUP_ID}"
     build:
       context: .
@@ -19,7 +19,7 @@ services:
       && aws sts get-caller-identity
       && git init
       && dvc pull
-      && dvc repro
+      && dvc repro --force
       && dvc metrics show
       && tail -f /dev/null"
     
