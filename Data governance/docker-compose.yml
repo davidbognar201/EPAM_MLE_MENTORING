@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  container:
+    user: "${USER_ID}:${GROUP_ID}"
+    build:
+      context: .
+      args:
+        - USER_ID=${USER_ID}
+        - GROUP_ID=${GROUP_ID}
+        - AWS_KEY=${AWS_KEY}
+        - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+    env_file:
+      - .env
+    working_dir: /data_gov
+    command: > 
+      bash -c "aws configure set aws_access_key_id ${AWS_KEY}
+      && aws configure set aws_secret_access_key ${AWS_SECRET_KEY}
+      && aws sts get-caller-identity
+      && git init
+      && dvc pull
+      && dvc repro --force
+      && dvc metrics show
+      && tail -f /dev/null"
+    
+    
