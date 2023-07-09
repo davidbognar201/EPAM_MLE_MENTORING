@@ -6,6 +6,7 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 processed_df = pd.read_csv("data/processedData.csv")
+print("------------------- Running the training script -------------------")
 
 x_train, x_test, y_train, y_test = train_test_split(processed_df["review_stemmed_lemmatized"],processed_df["target"],
                                                     random_state=23,
@@ -42,3 +43,5 @@ with open("metrics.json", 'w') as outfile:
                     "recall": recall_score(y_test,SGD_predicted_y), 
                     "precision":precision_score(y_test,SGD_predicted_y), 
                     "auc":roc_auc_score(y_test,SGD_predicted_y)}, outfile)
+        
+print("------------------- Training script finished -------------------")

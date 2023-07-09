@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize
 from nltk import PorterStemmer, WordNetLemmatizer
 
 review_df = pd.read_csv("data/MovieDataset.csv")
+print("------------------- Running the preprocessing script -------------------")
 
 # Declaring the numeric class labels for the target feature
 target_dict = {"positive":0, "negative":1}
@@ -54,4 +55,4 @@ review_df['review_stemmed_lemmatized'] = review_df['review_tokenized'].apply(lam
 final_export_df = review_df[["review_stemmed_lemmatized", "target"]]
 
 final_export_df.to_csv("data/processedData.csv", index=False)
-print("Preprocess done!")
+print("------------------- Preprocessing script finished -------------------")
