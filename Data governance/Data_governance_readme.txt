@@ -2,7 +2,7 @@ For this homework I used the NLP Classification task from the Data Science Train
 
 --------- AWS setup ---------
 	- I created a S3 bucket called 'epam-mle-mentoring-bucket' and a IAM user, who has only a custom policy, which gives the following permissions: ("s3:ListBucket", "s3:PutObject", "s3:GetObject").
-	- I generated an acces key to this user, which will be needed during the dvc operations to access the remote storage.
+	- I generated an access key to this user, which will be needed during the dvc operations to access the remote storage.
 
 --------- Folder structure ---------	
 	- /src -> it contains all the necessary .py scripts to run the pipelines
@@ -26,4 +26,4 @@ For this homework I used the NLP Classification task from the Data Science Train
 
 --------- Guide for reproducing the HW ---------
 	- Before setting up the container, the AWS keys must be copied in the .env file
-	- After the keys are set, the container can be set up completely with a 'docker-compose up' command and it will run every command which is needed in the task
+	- After the keys are set, the container can be set up completely with a 'docker-compose up' command and it will run every command which is needed in the task, all the codes are finished when the metrics show up in the console
