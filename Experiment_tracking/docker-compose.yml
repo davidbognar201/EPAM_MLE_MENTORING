@@ -10,6 +10,9 @@ services:
       - mlflow-server
     environment: 
       MLFLOW_TRACKING_URI: 'http://mlflow:5000'
+    command: >
+      bash -c "python src/experimenting.py
+      && tail -f /dev/null"
   mlflow-server:
     build:
       context: ./mlflow_server
