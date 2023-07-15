@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  client:
+    build:
+      context: ./client
+    ports:
+      - "8888:8888"
+    depends_on: 
+      - mlflow-server
+    environment: 
+      MLFLOW_TRACKING_URI: 'http://mlflow:5000'
+  mlflow-server:
+    build:
+      context: ./mlflow_server
+    env_file:
+      - .env
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    expose: 
+      - "5000"
+    ports:
+      - "5000:5000"
+    depends_on: 
+      - postgres
+    command: > 
+      bash -c "mlflow ui --host 0.0.0.0 
+      && mlflow server 
+      && --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/mlflowdb 
+      && --default-artifact-root s3://mlflow-artifact-bucket-mentoring 
+      && --host 0.0.0.0 \
+      && --port 5000 \
+      && --no-serve-artifacts"
+  postgres:
+    build:
+      context: ./mlflow_database
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports: 
+      - "5432:5432"
