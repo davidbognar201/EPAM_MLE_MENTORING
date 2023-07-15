@@ -24,6 +24,8 @@ x_test_scaled = scaler.fit_transform(x_test)
 y_test = np.log(y_test)
 y_train = np.log(y_train)
 
+y_test = y_test.reset_index(drop=True)
+y_train = y_train.reset_index(drop=True)
 
 train_df = pd.DataFrame(data=x_train_scaled, columns=x_train.columns)
 train_df["target"] = y_train
