@@ -1,2 +1,7 @@
 mlflow
 psycopg2
+pandas
+numpy
+seaborn
+matplotlib
+scikit-learn
