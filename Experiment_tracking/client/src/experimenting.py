@@ -20,8 +20,8 @@ import pylab
 import scipy.stats as stats
 
 
-test_data = pd.read_csv(r"Experiment_tracking\client\data\preprocessed\test_data.csv")
-train_data = pd.read_csv(r"Experiment_tracking\client\data\preprocessed\train_data.csv")
+test_data = pd.read_csv("/client/data/preprocessed/test_data.csv")
+train_data = pd.read_csv("/client/data/preprocessed/train_data.csv")
 
 print(train_data.columns)
 
@@ -31,24 +31,27 @@ test_x = test_data.drop(labels=['target'], axis=1)
 train_y = train_data['target']
 test_y = test_data['target']
 
-mlflow.autolog()
+criterion = "friedman_mse"
+max_features = "sqrt"
+n_est = 100
+RANDOM_SEED = 42
+with mlflow.start_run():
 
-random_forest_param_grid = {
-    "criterion" : ["squared_error", "absolute_error", "friedman_mse", "poisson"],
-    "max_features" : ["sqrt", "log2"],
-    "n_estimators" : [100],
+    mlflow.log_param("criterion", criterion)
+    mlflow.log_param("max_features", max_features)
+    mlflow.log_param("n_estimators", n_est)
+
+
+
+    rnd_forest_model = RandomForestClassifier(random_state=42,
+                                             criterion=criterion,
+                                             max_features=max_features,
+                                             n_estimators=n_est)
     
-}
+    rnd_forest_model.fit(train_x, train_y)
 
-random_forest_model = cf.FitModelWithPredefinedParams(RandomForestRegressor(random_state=42), 
-                                                    train_x = train_x,
-                                                    train_y = train_y,
-                                                    test_x = test_x,
-                                                    param_grid = random_forest_param_grid,
-                                                    scoring_metric = "neg_mean_absolute_error",
-                                                    cv_value = 3,
-                                                    verbose_value=3)
+    prediction = rnd_forest_model.predict(test_x)
 
-random_forest_predictions = random_forest_model.best_estimator_.predict(test_x)
-
-cf.EvaluateModelPerformance(test_y, random_forest_predictions)
+    mlflow.log_metric("R2", r2_score(test_y, prediction))
+    mlflow.log_metric("MAE", mean_absolute_error(test_y, prediction))
+    mlflow.log_metric("MAPE", mean_absolute_percentage_error(test_y, prediction))
