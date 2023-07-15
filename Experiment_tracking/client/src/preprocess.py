@@ -11,7 +11,7 @@ independent_features = bike_rental_df.drop(labels=["target", "casual", "register
 
 x_train, x_test, y_train, y_test = train_test_split(independent_features,
                                                     target_feature,
-                                                    test_size=0.15,
+                                                    test_size=0.25,
                                                     random_state=42)
 
 print("Shape of the train set: " + str(x_train.shape))
@@ -24,13 +24,15 @@ x_test_scaled = scaler.fit_transform(x_test)
 y_test = np.log(y_test)
 y_train = np.log(y_train)
 
-train_data = x_train_scaled
-train_data["target"] = y_train
 
-test_data = x_train_scaled
-test_data["target"] = y_test
+train_df = pd.DataFrame(data=x_train_scaled, columns=x_train.columns)
+train_df["target"] = y_train
 
-train_data.to_csv("Experiment_tracking/client/data/preprocessed/train_data.csv", index=False)
-test_data.to_csv("Experiment_tracking/client/data/preprocessed/test_data.csv", index=False)
+test_df = pd.DataFrame(data=x_test_scaled, columns=x_test.columns)
+test_df["target"] = y_test
 
-print("preprocessing script finished")
+
+train_df.to_csv("Experiment_tracking/client/data/preprocessed/train_data.csv", index=False)
+test_df.to_csv("Experiment_tracking/client/data/preprocessed/test_data.csv", index=False)
+
+print(" ------------------ Preprocessing script finished ------------------ ")
