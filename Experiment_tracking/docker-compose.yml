@@ -16,10 +16,10 @@ services:
         depends_on: 
           - mlflow-server
           - nginx
-          - db
+          - mlflow_db
         command: >
           bash -c "tail -f /dev/null"
-    db:
+    mlflow_db:
         restart: always
         image: mysql/mysql-server:5.7.28
         container_name: mlflow_db
@@ -33,7 +33,7 @@ services:
             - MYSQL_PASSWORD=${MYSQL_PASSWORD}
             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
         volumes:
-            - dbdata:/var/lib/mysql
+            - ./db:/var/lib/mysql
 
     mlflow-server:
         restart: always
@@ -49,7 +49,7 @@ services:
             - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
             - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
         command: mlflow server 
-            --backend-store-uri mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE} 
+            --backend-store-uri mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mlflow_db:3306/${MYSQL_DATABASE} 
             --default-artifact-root s3://mlflow-artifact-bucket-mentoring/mlruns
             --host 0.0.0.0        
     nginx:
@@ -70,5 +70,3 @@ networks:
     backend:
         driver: bridge
 
-volumes:
-    dbdata:
