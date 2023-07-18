@@ -1,0 +1,72 @@
+
+version: '3.3'
+
+services:
+    client:
+        build: ./client
+        container_name: client
+        ports: 
+          - "8888:8888"
+        networks:
+          - frontend
+        environment:
+            - MLFLOW_TRACKING_URI=http://mlflow-server:5000
+            - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+            - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+        depends_on: 
+          - mlflow-server
+          - nginx
+          - mlflow_db
+        command: >
+          bash -c "tail -f /dev/null"
+    mlflow_db:
+        restart: always
+        image: mysql/mysql-server:5.7.28
+        container_name: mlflow_db
+        expose:
+            - "3306"
+        networks:
+            - backend
+        environment:
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        volumes:
+            - ./db:/var/lib/mysql
+
+    mlflow-server:
+        restart: always
+        build: ./server
+        image: mlflow_server
+        container_name: mlflow_server
+        expose:
+            - "5000"
+        networks:
+            - frontend
+            - backend
+        environment:
+            - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+            - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+        command: mlflow server 
+            --backend-store-uri mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mlflow_db:3306/${MYSQL_DATABASE} 
+            --default-artifact-root s3://mlflow-artifact-bucket-mentoring/mlruns
+            --host 0.0.0.0        
+    nginx:
+        restart: always
+        build: ./nginx
+        image: mlflow_nginx
+        container_name: mlflow_nginx
+        ports:
+            - "80:80"
+        networks:
+            - frontend
+        depends_on:
+            - mlflow-server
+
+networks:
+    frontend:
+        driver: bridge
+    backend:
+        driver: bridge
+
