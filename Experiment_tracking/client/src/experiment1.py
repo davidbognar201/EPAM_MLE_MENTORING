@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import customFunctions as cf
 import mlflow
+import pickle
 
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
@@ -72,5 +73,10 @@ with mlflow.start_run():
     mlflow.log_param("n_estimators", best_params["n_estimators"])
     print("After log param")
     mlflow.sklearn.log_model(tuned_model, "Random Forest Regressor")
+    filename = 'model.pkl'
+    with open(filename, 'wb') as f:
+        pickle.dump(tuned_model, f)
+
+    mlflow.log_artifact(filename)
 
 print("Experiment 1 - Finished")
