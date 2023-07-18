@@ -1,0 +1,14 @@
+Guide to reproduce HW:
+  1. The AWS Access keys should be copied into the .env file, otherwise the artifacts won't be visible on the MLFlow UI
+  2. Everything can be set up with a 'docker-compose up' command, after everything is started the MLFlow UI will be available at '127.0.0.1:80' (the console says 0.0.0.0:5000, but that address won't work(
+  3. The database is also in the project so you don't have to run anything, all my previous experiments will be available with the artifacts
+
+Short description:
+  I used the Advanced Regression module's data and task and created experiments with multiple regression model. The hyperparameter tuning and the models are pretty basic, there should be much more tuning but the goal was fast and easy reproducibility, so I didn't spend much time with the models. 
+  The whole architecture is basically three main components:
+    - a MySQL server to store the data about runs, this database is saved at the /db folder
+    - an AWS S3 bucket to store the artifacts which are produced by the models, every model can be reproduced from this storage
+    - an MLFlow server which tracks the different runs and manages the 2 storages above
+  There is also a client service but it hasn' t got much impact in this case, everything would still run without it, I just used it to run experiments in an isolated environment. There is also an nginx service which solved one of my previous major issue, that the client container couldn't communicate with the mlflow_server. I found this solution online, so those two .conf files are not my work, I just customized small parts of them, so they allign to my setup.
+
+  
