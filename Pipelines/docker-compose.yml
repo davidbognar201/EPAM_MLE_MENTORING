@@ -1,0 +1,33 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+      
+  webserver:
+    build:
+      context: ./server
+      args:
+        AIRFLOW_DEPS: s3
+    container_name: airflow-webserver
+    restart: always
+    environment:
+      - LOAD_EX=n
+      - EXECUTOR=Local
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "8080:8080"
+    command: webserver
+    volumes:
+      - ./server/dags:/usr/local/airflow/dags
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
