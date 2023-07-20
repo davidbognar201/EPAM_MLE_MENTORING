@@ -1,2 +1,5 @@
 Experiment_tracking/aws_keys
 Experiment_tracking/client/src/experiments/__pycache__/customFunctions.cpython-310.pyc
+Pipelines/awskeys
+Pipelines/server/dags/__pycache__/ml-dag.cpython-37.pyc
+Pipelines/server/dags/__pycache__/ml-dag.cpython-36.pyc
