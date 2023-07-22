@@ -3,28 +3,49 @@ from datetime import timedelta
 
 import airflow
 from airflow import DAG
+from airflow.models.xcom import XCom
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 
-FILENAME = 'rentalData.csv'
+BASE_FILENAME = 'rentalData.csv'
+ENCODED_FILENAME = 'encoded_data.csv'
+TRAIN_FILENAME = "train_data.csv"
+TEST_FILENAME = "test_data.csv"
+TRAIN_PREPROCESSED_FILENAME = "train_data_preprocess.csv"
+TEST_PREPROCESSED_FILENAME = "test_data_preprocess.csv"
+
 FILEPATH = 'dags/tmp_data/'
 BUCKET_NAME = 'pipelines-module-data-storage'
 VALID_COLUMNS = ["instant", "dteday", "season", "yr", "mnth", "hr", "holiday", "weekday", "workingday", "weathersit", "temp", "atemp", "hum", "windspeed", "casual", "registered", "cnt"]
 
-CATEGORICAL_FEATURES = []
-NUMERIC_FEATURES = []
+CATEGORICAL_FEATURES = ["season", "yr", "mnth", "hr", "holiday", "weekday", "workingday", "weathersit"]
+NUMERIC_FEATURES = ["temp", "atemp", "hum", "windspeed"]
+TARGET = "cnt"
+
+CV_PARAM_GRID = {
+    #"loss" : ['huber', 'quantile', 'absolute_error', 'squared_error'], 
+    "loss" : ['squared_error'], 
+    "criterion" : ["friedman_mse"],
+    #"n_estimators" : [500, 1000],
+    "n_estimators" : [5, 10],
+    "max_features" : [1, "log2", "sqrt"]
+}
+CROSS_VALIDATION_FOLDS = 2
+SCORING_METRIC = "neg_mean_absolute_error" 
+RANDOM_SEED = 42
 
 def fetchBaseData():
     import boto3 
 
     resource = boto3.resource('s3')
     my_bucket = resource.Bucket(BUCKET_NAME)
-    my_bucket.download_file(FILENAME, FILEPATH + FILENAME)
+    my_bucket.download_file(BASE_FILENAME, FILEPATH + BASE_FILENAME)
+
 
 def checkEmptyData():
     import csv
 
-    with open(FILEPATH + FILENAME) as csvfile:
+    with open(FILEPATH + BASE_FILENAME) as csvfile:
             reader = csv.reader(csvfile)
             for i, _ in enumerate(reader):
                 if i:  # found the second row
@@ -34,7 +55,7 @@ def checkEmptyData():
 def checkDataValidity():
     import csv
 
-    with open(FILEPATH + FILENAME, newline='') as f:
+    with open(FILEPATH + BASE_FILENAME, newline='') as f:
         reader = csv.reader(f)
         input_header = next(reader)  
         if len(input_header) == len(VALID_COLUMNS):
@@ -50,7 +71,7 @@ def checkDataValidity():
 def checkNullValues():
     import pandas as pd
 
-    data = pd.read_csv(FILEPATH + FILENAME)
+    data = pd.read_csv(FILEPATH + BASE_FILENAME)
     num_of_missing = data.isnull().any(axis=1).sum()
     if num_of_missing != 0:
         return "drop_nan"
@@ -61,38 +82,112 @@ def checkNullValues():
 def dropRowsWithNullValues():
     import pandas as pd
 
-    data = pd.read_csv(FILEPATH + FILENAME)
+    data = pd.read_csv(FILEPATH + BASE_FILENAME)
     num_of_missing = data.isnull().any(axis=1).sum()
     data.dropna(axis=0, inplace=True)
-    print(str(num_of_missing) + " rows were dropped due to NaN values from " + FILENAME)
-    data.to_csv(FILEPATH + FILENAME)
+    print(str(num_of_missing) + " rows were dropped due to NaN values from " + BASE_FILENAME)
+    data.to_csv(FILEPATH + BASE_FILENAME)
     print("Data file was replaced with cleaned data")
 
 
 def categoricalPreprocessing():
     import pandas as pd
-    return None
+    from sklearn.preprocessing import OneHotEncoder
+
+    data = pd.read_csv(FILEPATH + BASE_FILENAME)
+    encoder = OneHotEncoder()
+    encoded_data = pd.DataFrame(encoder.fit_transform(data[CATEGORICAL_FEATURES]).toarray(), columns=encoder.get_feature_names_out(CATEGORICAL_FEATURES))
+    final_df = data.drop(columns=CATEGORICAL_FEATURES, axis=1).join(encoded_data)
+    final_df.drop(labels=final_df.columns[0:2], axis=1).to_csv(FILEPATH + ENCODED_FILENAME)
+
 
 def traintestSplit():
     import pandas as pd
     from sklearn.model_selection import train_test_split
 
-    return None
+    data = pd.read_csv(FILEPATH + ENCODED_FILENAME)
+    target_feature = data["cnt"]
+    independent_features = data.drop(labels=["cnt", "casual", "registered", "dteday"], axis=1)
+
+    try:
+        x_train, x_test, y_train, y_test = train_test_split(independent_features,
+                                                        target_feature,
+                                                        test_size=0.2,
+                                                        random_state=42)
+    except:
+        raise ValueError("Error has occured while splitting the data")
+    
+    print("Shape of the train set: " + str(x_train.shape))
+    print("Shape of the test set: " + str(x_test.shape))
+
+    train_data = pd.concat([x_train, y_train], axis=1)
+    test_data = pd.concat([x_test, y_test], axis=1)
+
+    try:
+        train_data.to_csv(FILEPATH + TRAIN_FILENAME)
+        test_data.to_csv(FILEPATH + TEST_FILENAME)
+    except:
+        raise IOError("Error has occured while exporting the data")
+    
+    print("Train test split succesfully saved")
+
 
 def numericPreprocessing():
     import pandas as pd
+    import numpy as np
     from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
 
-    return None
+    train_data = pd.read_csv(FILEPATH + TRAIN_FILENAME)
+    test_data = pd.read_csv(FILEPATH + TEST_FILENAME)
 
-def trainModel():
-    return None
+    scaler = StandardScaler()
+    train_scaled = pd.DataFrame(data=scaler.fit_transform(train_data[NUMERIC_FEATURES]),
+                                columns=NUMERIC_FEATURES)
+
+    test_scaled = pd.DataFrame(data=scaler.transform(test_data[NUMERIC_FEATURES]),
+                                columns=NUMERIC_FEATURES)
+
+    train_target = np.log(train_data["cnt"])
+    test_target = np.log(test_data["cnt"])
+
+    train_preprocessed = pd.concat([train_data.drop(labels=NUMERIC_FEATURES, axis=1),
+                                train_scaled,
+                                train_target],
+                                axis=1)
+    test_preprocessed = pd.concat([test_data.drop(labels=NUMERIC_FEATURES, axis=1),
+                                test_scaled,
+                                test_target],
+                                axis=1)
+    
+    train_preprocessed.to_csv(FILEPATH + TRAIN_PREPROCESSED_FILENAME)
+    test_preprocessed.to_csv(FILEPATH + TEST_PREPROCESSED_FILENAME)
+    
+
+def hyperparameterTuning(ti,**kwargs):
+    import pandas as pd
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.ensemble import GradientBoostingRegressor
+    train_data = pd.read_csv(FILEPATH + TRAIN_FILENAME)
+    train_x = train_data.drop(labels=["cnt"], axis=1)
+    train_y = train_data["cnt"]
+
+    cv_ins = GridSearchCV(GradientBoostingRegressor(random_state=RANDOM_SEED),
+                                 param_grid=CV_PARAM_GRID,
+                                 cv=CROSS_VALIDATION_FOLDS,
+                                 scoring=SCORING_METRIC,
+                                 verbose=2)
+    cv_ins.fit(train_x, train_y)
+    ti.xcom_push(key='best_params', value=cv_ins.best_params_)
+
+def trainModel(ti, **kwargs):
+    print(ti.xcom_pull(key='best_params', task_ids=["hyperparameter_tuning"]))
 
 def createArtifacts():
-    return None
+    raise NotImplementedError()
 
 def saveArtifactsToRemote():
-    return None
+    raise NotImplementedError()
 
 default_args = {
     'owner': 'airflow',
@@ -145,8 +240,7 @@ categorical_preprocess = PythonOperator(
     task_id='categorical_preprocess',
     python_callable=categoricalPreprocessing,
     dag=dag)
-categorical_preprocess.set_upstream(data_nan_check)
-categorical_preprocess.set_upstream(drop_nan_task)
+categorical_preprocess.set_upstream([data_nan_check,drop_nan_task])
 
 train_test_split = PythonOperator(
     task_id='train_test_split',
@@ -160,10 +254,18 @@ numerical_preprocess = PythonOperator(
     dag=dag)
 numerical_preprocess.set_upstream(train_test_split)
 
+hyperparam_tune = PythonOperator(
+    task_id='hyperparameter_tuning',
+    python_callable=hyperparameterTuning,
+    dag=dag,
+    provide_context=True)
+hyperparam_tune.set_upstream(numerical_preprocess)
+
 train_model = PythonOperator(
     task_id='train_model',
     python_callable=trainModel,
-    dag=dag)
-train_model.set_upstream(numerical_preprocess)
+    dag=dag,
+    provide_context=True)
+train_model.set_upstream(hyperparam_tune)
 
 
