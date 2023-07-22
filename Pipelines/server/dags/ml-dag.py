@@ -14,6 +14,7 @@ TEST_FILENAME = "test_data.csv"
 TRAIN_PREPROCESSED_FILENAME = "train_data_preprocess.csv"
 TEST_PREPROCESSED_FILENAME = "test_data_preprocess.csv"
 
+TO_REMOTE_PATH = 'dags/to_remote/'
 FILEPATH = 'dags/tmp_data/'
 BUCKET_NAME = 'pipelines-module-data-storage'
 VALID_COLUMNS = ["instant", "dteday", "season", "yr", "mnth", "hr", "holiday", "weekday", "workingday", "weathersit", "temp", "atemp", "hum", "windspeed", "casual", "registered", "cnt"]
@@ -178,16 +179,57 @@ def hyperparameterTuning(ti,**kwargs):
                                  scoring=SCORING_METRIC,
                                  verbose=2)
     cv_ins.fit(train_x, train_y)
+    print("Best parameters found")
+    print(cv_ins.best_params_)
     ti.xcom_push(key='best_params', value=cv_ins.best_params_)
 
 def trainModel(ti, **kwargs):
-    print(ti.xcom_pull(key='best_params', task_ids=["hyperparameter_tuning"]))
+    import pandas as pd
+    from sklearn.ensemble import GradientBoostingRegressor
+    
+    best_parameters = ti.xcom_pull(key='best_params', task_ids=["hyperparameter_tuning"])
+    
+    train_data = pd.read_csv(FILEPATH + TRAIN_FILENAME)
+    train_x = train_data.drop(labels=["cnt"], axis=1)
+    train_y = train_data["cnt"]
 
-def createArtifacts():
+    gradBoostModel = GradientBoostingRegressor(**best_parameters,
+                                               random_state=RANDOM_SEED)
+    
+    gradBoostModel.fit(train_x, train_y)
+    ti.xcom_push(key='fitted_model', value=gradBoostModel)
+    
+def predictOnTestSet(ti, **kwargs):
+    import pandas as pd
+    from sklearn.ensemble import GradientBoostingRegressor
+    from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
+
+    test_data = pd.read_csv(FILEPATH + TEST_FILENAME)
+    test_x = test_data.drop(labels=["cnt"], axis=1)
+    test_y = test_data["cnt"]
+
+    gradBoostModel =  ti.xcom_pull(key='fitted_model', task_ids=["train_model"])
+    predictions = gradBoostModel.predict(test_x)
+
+    test_metrics = {
+        "mae": round(mean_absolute_error(test_y, predictions),ndigits=4),
+        "mape": round(mean_absolute_percentage_error(test_y, predictions),ndigits=4),
+        "mse": round(mean_squared_error(test_y, predictions),ndigits=4),
+        "r2": round(r2_score(test_y, predictions),ndigits=4)
+    }
+    ti.xcom_push(key='metrics', value=test_metrics)
+
+def createModelReport(ti, **kwargs):
+    import matplotlib.pyplot
     raise NotImplementedError()
 
-def saveArtifactsToRemote():
+def serializeFittedModel(ti, **kwargs):
+    import pickle
     raise NotImplementedError()
+
+def pushArtifactsToRemote(ti, **kwargs):
+    raise NotImplementedError()
+
 
 default_args = {
     'owner': 'airflow',
@@ -268,4 +310,32 @@ train_model = PythonOperator(
     provide_context=True)
 train_model.set_upstream(hyperparam_tune)
 
+predict_on_test = PythonOperator(
+    task_id='predict_on_test',
+    python_callable=predictOnTestSet,
+    dag=dag,
+    provide_context=True)
+predict_on_test.set_upstream(train_model)
+
+create_report = PythonOperator(
+    task_id='create_report',
+    python_callable=createModelReport,
+    dag=dag,
+    provide_context=True)
+create_report.set_upstream(predict_on_test)
+
+serializeModel = PythonOperator(
+    task_id='selialize_model',
+    python_callable=serializeFittedModel,
+    dag=dag,
+    provide_context=True)
+serializeModel.set_upstream(predict_on_test)
+
+push_to_remote = PythonOperator(
+    task_id='push_to_remote',
+    python_callable=pushArtifactsToRemote,
+    dag=dag,
+    provide_context=True)
+push_to_remote.set_upstream(create_report)
+push_to_remote.set_upstream(serializeModel)
 
