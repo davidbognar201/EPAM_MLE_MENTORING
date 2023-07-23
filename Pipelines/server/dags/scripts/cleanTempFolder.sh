@@ -1,0 +1,1 @@
+rm /usr/local/airflow/dags/tmp_data/*
