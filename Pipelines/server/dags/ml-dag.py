@@ -13,22 +13,21 @@ TRAIN_FILENAME = "train_data.csv"
 TEST_FILENAME = "test_data.csv"
 TRAIN_PREPROCESSED_FILENAME = "train_data_preprocess.csv"
 TEST_PREPROCESSED_FILENAME = "test_data_preprocess.csv"
+FITTED_MODEL_FILENAME = "model.sav" 
+METRICS_FILENAME = "metrics.csv"
 
 TO_REMOTE_PATH = 'dags/to_remote/'
 FILEPATH = 'dags/tmp_data/'
 BUCKET_NAME = 'pipelines-module-data-storage'
-VALID_COLUMNS = ["instant", "dteday", "season", "yr", "mnth", "hr", "holiday", "weekday", "workingday", "weathersit", "temp", "atemp", "hum", "windspeed", "casual", "registered", "cnt"]
 
+VALID_COLUMNS = ["instant", "dteday", "season", "yr", "mnth", "hr", "holiday", "weekday", "workingday", "weathersit", "temp", "atemp", "hum", "windspeed", "casual", "registered", "cnt"]
 CATEGORICAL_FEATURES = ["season", "yr", "mnth", "hr", "holiday", "weekday", "workingday", "weathersit"]
 NUMERIC_FEATURES = ["temp", "atemp", "hum", "windspeed"]
 TARGET = "cnt"
-
 CV_PARAM_GRID = {
-    #"loss" : ['huber', 'quantile', 'absolute_error', 'squared_error'], 
-    "loss" : ['squared_error'], 
+    "loss" : ['huber', 'quantile', 'absolute_error', 'squared_error'], 
     "criterion" : ["friedman_mse"],
-    #"n_estimators" : [500, 1000],
-    "n_estimators" : [5, 10],
+    "n_estimators" : [500, 1000],
     "max_features" : [1, "log2", "sqrt"]
 }
 CROSS_VALIDATION_FOLDS = 2
@@ -193,8 +192,7 @@ def trainModel(ti, **kwargs):
     train_x = train_data.drop(labels=["cnt"], axis=1)
     train_y = train_data["cnt"]
 
-    gradBoostModel = GradientBoostingRegressor(**best_parameters,
-                                               random_state=RANDOM_SEED)
+    gradBoostModel = GradientBoostingRegressor(**best_parameters[0])
     
     gradBoostModel.fit(train_x, train_y)
     ti.xcom_push(key='fitted_model', value=gradBoostModel)
@@ -209,6 +207,8 @@ def predictOnTestSet(ti, **kwargs):
     test_y = test_data["cnt"]
 
     gradBoostModel =  ti.xcom_pull(key='fitted_model', task_ids=["train_model"])
+    print(gradBoostModel)
+    gradBoostModel = gradBoostModel[0]
     predictions = gradBoostModel.predict(test_x)
 
     test_metrics = {
@@ -219,16 +219,31 @@ def predictOnTestSet(ti, **kwargs):
     }
     ti.xcom_push(key='metrics', value=test_metrics)
 
-def createModelReport(ti, **kwargs):
-    import matplotlib.pyplot
-    raise NotImplementedError()
-
 def serializeFittedModel(ti, **kwargs):
     import pickle
-    raise NotImplementedError()
+    fitted_model = ti.xcom_pull(key='fitted_model', task_ids=["train_model"])
+    try:
+        pickle.dump(fitted_model[0], open(TO_REMOTE_PATH + FITTED_MODEL_FILENAME, 'wb'))
+    except:
+        raise IOError("An error has occured while exporting the model file")
+    
+def saveMetrics(ti, **kwargs):
+    import pandas as pd
+    metrics = ti.xcom_pull(key='metrics', task_ids=["predict_on_test"])
+    metrics_df = pd.DataFrame(data=metrics[0].items(), columns=["metric", "value"])
+    metrics_df.to_csv(TO_REMOTE_PATH + METRICS_FILENAME)
 
 def pushArtifactsToRemote(ti, **kwargs):
-    raise NotImplementedError()
+    import boto3
+
+    resource = boto3.resource('s3')
+    resource.meta.client.upload_file(Filename=TO_REMOTE_PATH + FITTED_MODEL_FILENAME,
+                                 Bucket=BUCKET_NAME,
+                                 Key=FITTED_MODEL_FILENAME)
+    resource.meta.client.upload_file(Filename=TO_REMOTE_PATH + METRICS_FILENAME,
+                                 Bucket=BUCKET_NAME,
+                                 Key=METRICS_FILENAME)
+
 
 
 default_args = {
@@ -317,15 +332,15 @@ predict_on_test = PythonOperator(
     provide_context=True)
 predict_on_test.set_upstream(train_model)
 
-create_report = PythonOperator(
-    task_id='create_report',
-    python_callable=createModelReport,
+save_metrics = PythonOperator(
+    task_id='save_metrics',
+    python_callable=saveMetrics,
     dag=dag,
     provide_context=True)
-create_report.set_upstream(predict_on_test)
+save_metrics.set_upstream(predict_on_test)
 
 serializeModel = PythonOperator(
-    task_id='selialize_model',
+    task_id='serialize_model',
     python_callable=serializeFittedModel,
     dag=dag,
     provide_context=True)
@@ -336,6 +351,12 @@ push_to_remote = PythonOperator(
     python_callable=pushArtifactsToRemote,
     dag=dag,
     provide_context=True)
-push_to_remote.set_upstream(create_report)
+push_to_remote.set_upstream(save_metrics)
 push_to_remote.set_upstream(serializeModel)
+
+clean_temp_files = BashOperator(
+    task_id='clean_temp_files',
+    bash_command='scripts/cleanTempFolder.sh',
+    dag=dag)
+clean_temp_files.set_upstream(push_to_remote)
 
