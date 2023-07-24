@@ -36,4 +36,4 @@ Cleanup:
 Airflow best practises applied:
   - I imported every package in the local scope of the task functions, so this way it gives better performance because airflow doesn't have to parse every import all the time, only when the function is called
   - Used XCOM to pass small amount of data between tasks, but the dataframes are not passed via XCOMs as they are not optimised to pass large data
-- Every task is as thin as possible, all of them mainly responsible for one task only
+  - Every task is as thin as possible, all of them mainly responsible for one task only
