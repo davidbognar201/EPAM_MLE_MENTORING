@@ -5,7 +5,7 @@ Guide to reproduce HW:
 
 HW description:
 
-The main goal of the DAg is to fetch a database from an S3 storage, then it does the whole ML pipeline witch cleaning, preprocessing, train/test split and training. At the end it pushes the trained model to an S3 stroage with the metrics of the model.
+The main goal of the DAG is to fetch a database from an S3 storage, then it does the whole ML pipeline witch cleaning, preprocessing, train/test split and training. At the end it pushes the trained model to an S3 stroage with the metrics of the model.
 
 The DAG consists of 14 PythonOperators and 1 BashOperator, so it runs a total of 15 tasks depending on the input.
 
