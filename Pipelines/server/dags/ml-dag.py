@@ -27,7 +27,7 @@ TARGET = "cnt"
 CV_PARAM_GRID = {
     "loss" : ['huber', 'quantile', 'absolute_error', 'squared_error'], 
     "criterion" : ["friedman_mse"],
-    "n_estimators" : [500, 1000],
+    "n_estimators" : [500],
     "max_features" : [1, "log2", "sqrt"]
 }
 CROSS_VALIDATION_FOLDS = 2
