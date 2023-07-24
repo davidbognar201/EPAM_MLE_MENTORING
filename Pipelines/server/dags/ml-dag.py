@@ -27,7 +27,7 @@ TARGET = "cnt"
 CV_PARAM_GRID = {
     "loss" : ['huber', 'quantile', 'absolute_error', 'squared_error'], 
     "criterion" : ["friedman_mse"],
-    "n_estimators" : [500],
+    "n_estimators" : [300],
     "max_features" : [1, "log2", "sqrt"]
 }
 CROSS_VALIDATION_FOLDS = 2
@@ -249,7 +249,7 @@ def pushArtifactsToRemote(ti, **kwargs):
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': airflow.utils.dates.days_ago(2),
+    'start_date': airflow.utils.dates.days_ago(1),
     'email': ['david.bognar@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': False,
