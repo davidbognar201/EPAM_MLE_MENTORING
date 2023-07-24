@@ -1,2 +1,5 @@
-Experiment_tracking/aws_keys
-Experiment_tracking/client/src/experiments/__pycache__/customFunctions.cpython-310.pyc
+Pipelines/awskeys
+Pipelines/server/dags/__pycache__
+Pipelines/server/dags/tmp_data/*
+Pipelines/server/dags/to_remote/model.sav
+Pipelines/server/dags/to_remote/metrics.csv
