@@ -10,5 +10,19 @@ services:
         command: python app/application.py
         volumes:
           - ./flask_app/app:/app 
+    batch-app:
+        build: ./batch_server
+        image: batch-server
+        container_name: batch-server
+        ports: 
+          - "8000:8000"
+        networks:
+            - frontend
+        command: uvicorn src.app:app --host 0.0.0.0 --reload
+        volumes:
+          - ./batch_server/app:/app     
 
+networks:
+    frontend:
+        driver: bridge
 
