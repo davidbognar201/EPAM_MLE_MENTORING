@@ -18,9 +18,24 @@ services:
           - "8000:8000"
         networks:
             - frontend
-        command: uvicorn src.app:app --host 0.0.0.0 --reload
+        command: uvicorn app.app:app --host 0.0.0.0 --reload
         volumes:
-          - ./batch_server/app:/app     
+          - ./batch_server/app:/app   
+    client:
+        build: ./client
+        image: client
+        container_name: client
+        depends_on:
+          - batch-app
+        ports: 
+          - "8080:8080"
+        networks:
+            - frontend
+        volumes:
+          - ./client/src:/client/src  
+        command: >
+          bash -c "sleep 3s
+          && python /client/src/test_request.py"  
 
 networks:
     frontend:
