@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flask API</title>
+</head>
+<body>
+    <h1>Predicton form</h1>
+    <div>
+        <form action="/predict" method="POST">
+          <label for="age">Age</label>
+          <input type="numer" id="age" name="age" value="0">
+          <br>
+          <label for="tsh">TSH</label>
+          <input type="text" id="tsh" name="tsh" value="0">
+          <br>
+          <label for="t3">T3</label>
+          <input type="text" id="t3" name="t3" value="0">
+          <br>
+          <label for="tt4">TT4</label>
+          <input type="text" id="tt4" name="tt4" value="0">
+          <br>
+          <label for="t4u">T4U</label>
+          <input type="text" id="t4u" name="t4u" value="0">
+          <br>
+          <label for="fti">FTI</label>
+          <input type="text" id="fti" name="fti" value="0">
+          <br>
+
+          <label for="sex">Gender</label>
+          <select id="sex" name="sex">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
+          <br>
+
+          <label for="on_thyroxine">On thyroxine?</label>
+          <input type="hidden" id="on_thyroxine" name="on_thyroxine" value="f"/>
+          <input type="checkbox" id="on_thyroxine" name="on_thyroxine" value="t">
+          <br>
+
+          <label for="on_antithyroid_medication">On antithyroid medication?</label>
+          <input type="hidden" id="on_antithyroid_medication" name="on_antithyroid_medication" value="f">
+          <input type="checkbox" id="on_antithyroid_medication" name="on_antithyroid_medication" value="t">
+          <br>
+
+          <label for="sick">Sick?</label>
+          <input type="hidden" id="sick" name="sick" value="f">
+          <input type="checkbox" id="sick" name="sick" value="t">
+          <br>
+          
+          <label for="pregnant">pregnant?</label>
+          <input type="hidden" id="pregnant" name="pregnant" value="f">
+          <input type="checkbox" id="pregnant" name="pregnant" value="t">
+          <br>
+
+          <label for="thyroid_surgery">Had thyroid surgery?</label>
+          <input type="hidden" id="thyroid_surgery" name="thyroid_surgery" value="f">
+          <input type="checkbox" id="thyroid_surgery" name="thyroid_surgery" value="t">
+          <br>
+
+          <label for="i131_surgery">Had I131 surgery?</label>
+          <input type="hidden" id="i131_surgery" name="i131_surgery" value="f">
+          <input type="checkbox" id="i131_surgery" name="i131_surgery" value="t">
+          <br>
+
+          <label for="lithium">lithium?</label>
+          <input type="hidden" id="lithium" name="lithium" value="f">
+          <input type="checkbox" id="lithium" name="lithium" value="t">
+          <br>
+
+          <label for="goitre">goitre?</label>
+          <input type="hidden" id="goitre" name="goitre" value="f">
+          <input type="checkbox" id="goitre" name="goitre" value="t">
+          <br>
+
+          <label for="tumor">Has any kind of tumor?</label>
+          <input type="hidden" id="tumor" name="tumor" value="f">
+          <input type="checkbox" id="tumor" name="tumor" value="t">
+          <br>
+
+          <label for="hypopituitary">hypopituitary?</label>
+          <input type="hidden" id="hypopituitary" name="hypopituitary" value="f">
+          <input type="checkbox" id="hypopituitary" name="hypopituitary" value="t">
+          <br>
+
+          <label for="psych">Has any kind of psychological illnes?</label>
+          <input type="hidden" id="psych" name="psych" value="f">
+          <input type="checkbox" id="psych" name="psych" value="t">
+          <br>
+
+
+          <input type="submit" value="Predict">
+          <p> <b>Predicted class: {{result}}</b> -- {{prob}} %  </p>
+        </form>
+      </div>
+</body>
+</html>
