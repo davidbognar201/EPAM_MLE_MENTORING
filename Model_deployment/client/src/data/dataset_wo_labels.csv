@@ -15,7 +15,7 @@ age,sex,on_thyroxine,query_on_thyroxine,on_antithyroid_medication,sick,pregnant,
 59,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,2.8,t,1.7,t,97,t,0.91,t,107,f,0,SVI
 28,M,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,3.3,t,1.8,t,109,t,0.91,t,119,f,0,SVHC
 65,F,f,f,f,f,f,f,f,t,f,f,f,f,f,f,t,12,f,5,t,99,t,1.14,t,87,f,0,other
-42,?,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,1.2,t,1.8,t,70,t,0.86,t,81,f,0,other
+42,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,1.2,t,1.8,t,70,t,0.86,t,81,f,0,other
 63,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,1.5,t,1.2,t,117,t,0.96,t,121,f,0,SVI
 80,F,f,f,f,f,f,f,f,f,f,f,f,f,f,t,t,6,t,1.6,t,99,t,0.95,t,104,f,0,SVI
 28,M,f,f,f,f,f,f,f,f,f,f,f,f,f,t,t,2.1,t,2.6,t,121,t,0.94,t,130,f,0,SVHC
@@ -46,7 +46,7 @@ age,sex,on_thyroxine,query_on_thyroxine,on_antithyroid_medication,sick,pregnant,
 70,F,f,f,f,t,f,f,f,f,f,f,f,f,f,f,t,1.1,t,1.7,t,95,t,0.68,t,140,f,0,SVI
 81,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,0.2,t,2.2,t,133,t,0.78,t,171,f,0,other
 83,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,0.92,t,0.9,t,86,t,0.76,t,113,f,0,SVI
-21,?,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,7,t,1.8,t,163,t,1.05,t,155,f,0,other
+21,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,7,t,1.8,t,163,t,1.05,t,155,f,0,other
 87,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,0.15,t,1.7,t,162,t,0.87,t,186,f,0,SVI
 78,F,f,f,f,f,f,f,f,t,f,f,f,f,f,f,t,0.64,t,1.7,t,113,t,0.99,t,115,f,0,SVI
 64,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,0.035,t,1,t,103,t,0.85,t,122,f,0,SVI
@@ -60,14 +60,14 @@ age,sex,on_thyroxine,query_on_thyroxine,on_antithyroid_medication,sick,pregnant,
 27,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,15,t,1.6,t,82,t,0.82,t,100,f,0,SVI
 54,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,19,t,2.2,t,83,t,1.03,t,81,f,0,SVHC
 69,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,1.8,t,2.3,t,97,t,0.89,t,109,f,0,SVI
-42,?,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,0.02,t,2.6,t,138,t,1.58,t,88,f,0,STMW
+42,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,0.02,t,2.6,t,138,t,1.58,t,88,f,0,STMW
 87,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,3,t,1.6,t,71,t,1.06,t,67,f,0,other
 74,M,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,1,t,2.1,t,77,t,0.91,t,84,f,0,SVI
-38,?,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,2.9,t,1.8,t,93,t,0.95,t,98,f,0,other
+38,M,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,2.9,t,1.8,t,93,t,0.95,t,98,f,0,other
 66,M,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,1.3,t,1.7,t,86,t,0.91,t,94,f,0,other
 69,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,5,f,3,f,97,f,0.86,f,44,f,0,other
 76,M,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,3.2,t,0.8,t,101,t,0.99,t,103,f,0,SVHC
 44,M,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,0.2,t,1.5,t,107,t,0.79,t,135,f,0,other
-45,?,t,f,f,f,f,f,f,f,f,f,f,f,f,f,t,9,t,2.8,t,237,t,1.17,t,203,f,0,STMW
+45,F,t,f,f,f,f,f,f,f,f,f,f,f,f,f,t,9,t,2.8,t,237,t,1.17,t,203,f,0,STMW
 36,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,8,t,2,t,96,t,0.86,t,112,f,0,other
 22,F,f,f,f,f,f,f,f,f,f,f,f,f,f,f,t,1.3,f,1,t,110,t,0.94,t,117,f,0,other
