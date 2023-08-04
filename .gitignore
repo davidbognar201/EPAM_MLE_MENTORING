@@ -4,4 +4,3 @@ Pipelines/server/dags/tmp_data/*
 Pipelines/server/dags/to_remote/model.sav
 Pipelines/server/dags/to_remote/metrics.csv
 Model_deployment/client/src/data/dataset_w_labels.csv
-Model_deployment/client/src/logs/request_log.txt
