@@ -18,7 +18,9 @@ services:
           - "8000:8000"
         networks:
             - frontend
-        command: uvicorn app.app:app --host 0.0.0.0 --reload
+        command: >
+          bash -c "python -m unittest deployment_utils.test.testing
+          && uvicorn app.app:app --host 0.0.0.0 --reload"
         volumes:
           - ./batch_server/app:/app   
     client:
@@ -34,8 +36,9 @@ services:
         volumes:
           - ./client/src:/client/src  
         command: >
-          bash -c "sleep 3s
-          && python /client/src/test_request.py"  
+          bash -c "sleep 5s
+          && python3 /client/src/test_request.py
+          && tail -f /dev/null"  
 
 networks:
     frontend:
