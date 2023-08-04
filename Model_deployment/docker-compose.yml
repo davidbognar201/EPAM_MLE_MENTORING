@@ -36,8 +36,8 @@ services:
         volumes:
           - ./client/src:/client/src  
         command: >
-          bash -c "sleep 5s
-          && python3 /client/src/test_request.py
+          bash -c "sleep 10s
+          && cron
           && tail -f /dev/null"  
 
 networks:
