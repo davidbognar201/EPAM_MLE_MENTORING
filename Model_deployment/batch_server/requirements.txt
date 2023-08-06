@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+pandas
+scikit-learn==1.2.1
+deployment-package==0.0.10

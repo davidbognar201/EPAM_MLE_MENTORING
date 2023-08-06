@@ -1,0 +1,46 @@
+version: '3.3'
+
+services:
+    flask-app:
+        build: ./flask_app
+        image: flask-app
+        container_name: flask-app
+        ports: 
+          - "5000:5000"
+        command: python app/application.py
+        volumes:
+          - ./flask_app/app:/app 
+    batch-app:
+        build: ./batch_server
+        image: batch-server
+        container_name: batch-server
+        ports: 
+          - "8000:8000"
+        networks:
+            - frontend
+        command: >
+          bash -c "python -m unittest deployment_utils.test.testing
+          && uvicorn app.app:app --host 0.0.0.0 --reload"
+        volumes:
+          - ./batch_server/app:/app   
+    client:
+        build: ./client
+        image: client
+        container_name: client
+        depends_on:
+          - batch-app
+        ports: 
+          - "8080:8080"
+        networks:
+            - frontend
+        volumes:
+          - ./client/src:/client/src  
+        command: >
+          bash -c "sleep 10s
+          && cron
+          && tail -f /dev/null"  
+
+networks:
+    frontend:
+        driver: bridge
+
