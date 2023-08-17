@@ -4,3 +4,6 @@ Pipelines/server/dags/tmp_data/*
 Pipelines/server/dags/to_remote/model.sav
 Pipelines/server/dags/to_remote/metrics.csv
 Model_deployment/client/src/data/dataset_w_labels.csv
+Cloud_deployment/materials*
+Cloud_deployment/container/app/__pycache__/ScoringService.cpython-310.pyc
+Cloud_deployment/container/Dockerfile_old
