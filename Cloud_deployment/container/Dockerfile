@@ -10,13 +10,12 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
          python3-setuptools \
          nginx \
          ca-certificates \
+         dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./requirements.txt .
 
 RUN pip3 install -r requirements.txt
-
-EXPOSE 8080 
 
 # Here we get all python packages.
 # There's substantial overlap between scipy and numpy that we eliminate by
@@ -36,8 +35,6 @@ ENV PATH="/opt/program:${PATH}"
 # Set up the program in the image
 COPY ./app/ /opt/program
 COPY ./model/ /opt/ml
-WORKDIR /opt/program
+RUN dos2unix /opt/program/serve
 
-# --> docker build -t test-img .
-# --> docker run -v test-img -p 8080:8080 -v ./app:/opt/program -v ./model:/opt/ml test-img python serve
-        
+WORKDIR /opt/program
